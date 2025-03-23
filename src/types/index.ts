@@ -24,9 +24,10 @@ export interface PersonalityComment {
 }
 
 export interface Group {
-  id: string;
+  group_id: string;
   name: string;
   created_at: string;
+  created_by: string;
 }
 
 export interface GroupMember {
@@ -37,11 +38,7 @@ export interface GroupMember {
 }
 
 export interface CompatibilityResult {
-  id: string;
-  user_a_id: string;
-  user_b_id: string;
-  compatibility_score: number;
+  degree: number;
   description: string;
   advice: string;
-  created_at: string;
 }

@@ -1,16 +1,38 @@
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { supabase } from '../lib/supabase';
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "../lib/supabase";
 
 export function AuthCallback() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        navigate('/');
+    const checkProfileAndRedirect = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (!session) {
+        navigate("/");
+        return;
       }
-    });
+
+      // プロフィール情報を取得
+      const { data: profile, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", session.user.id)
+        .single();
+
+      if (error || !profile) {
+        // プロフィールが存在しない場合は設定ページへ
+        navigate("/profile-setup");
+      } else {
+        // プロフィールが存在する場合はホームへ
+        navigate("/home");
+      }
+    };
+
+    checkProfileAndRedirect();
   }, [navigate]);
 
   return (
