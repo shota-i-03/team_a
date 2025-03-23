@@ -93,15 +93,31 @@ export function ProfileSetup() {
             <label className="block text-sm font-medium text-gray-700">
               MBTI（任意）
             </label>
-            <input
-              type="text"
+            <select
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-              value={formData.mbti}
+              value={formData.mbti || ""}
               onChange={(e) =>
                 setFormData({ ...formData, mbti: e.target.value })
               }
-              placeholder="例: INTJ"
-            />
+            >
+              <option value="">選択してください</option>
+              <option value="INTJ">INTJ - 建築家 (Architect)</option>
+              <option value="INTP">INTP - 論理学者 (Logician)</option>
+              <option value="ENTJ">ENTJ - 指揮官 (Commander)</option>
+              <option value="ENTP">ENTP - 討論者 (Debater)</option>
+              <option value="INFJ">INFJ - 提唱者 (Advocate)</option>
+              <option value="INFP">INFP - 仲介者 (Mediator)</option>
+              <option value="ENFJ">ENFJ - 主人公 (Protagonist)</option>
+              <option value="ENFP">ENFP - 広報活動家 (Campaigner)</option>
+              <option value="ISTJ">ISTJ - 管理者 (Logistician)</option>
+              <option value="ISFJ">ISFJ - 擁護者 (Defender)</option>
+              <option value="ESTJ">ESTJ - 幹部 (Executive)</option>
+              <option value="ESFJ">ESFJ - 領事 (Consul)</option>
+              <option value="ISTP">ISTP - 巨匠 (Virtuoso)</option>
+              <option value="ISFP">ISFP - 冒険家 (Adventurer)</option>
+              <option value="ESTP">ESTP - 起業家 (Entrepreneur)</option>
+              <option value="ESFP">ESFP - エンターテイナー (Entertainer)</option>
+            </select>
           </div>
 
           {error && <div className="text-red-600 text-sm">{error}</div>}
