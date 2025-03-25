@@ -27,8 +27,24 @@ export function AuthCallback() {
         // プロフィールが存在しない場合は設定ページへ
         navigate("/profile-setup");
       } else {
-        // プロフィールが存在する場合はホームへ
-        navigate("/home");
+        // プロフィールが存在する場合、アンケート回答状況を確認
+        const { data: surveyResponse, error: surveyError } = await supabase
+          .from("survey_responses")
+          .select("id")
+          .eq("user_id", session.user.id)
+          .maybeSingle();
+
+        if (surveyError) {
+          console.error("Survey response check failed:", surveyError);
+        }
+
+        if (!surveyResponse) {
+          // アンケートに回答していない場合はアンケートページへ
+          navigate("/survey");
+        } else {
+          // アンケートに回答済みの場合はホームへ
+          navigate("/home");
+        }
       }
     };
 
