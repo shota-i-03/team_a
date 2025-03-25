@@ -1,7 +1,6 @@
 import { supabase } from "../lib/supabase";
 import { compatibilityService } from "./compatibilityService";
 import { SurveyResponse, PersonalityComment } from "../types";
-import { v4 as uuidv4 } from "uuid";
 
 export const surveyService = {
   async saveSurveyResponse(responses: SurveyResponse["responses"]) {
@@ -15,7 +14,7 @@ export const surveyService = {
       // Check if the user already has a survey response with proper headers
       const { data: existingResponse, error: fetchError } = await supabase
         .from("survey_responses")
-        .select("id")
+        .select("*")
         .eq("user_id", user.id)
         .maybeSingle();
 
@@ -32,7 +31,7 @@ export const surveyService = {
             responses,
             created_at: new Date().toISOString(),
           })
-          .eq("id", existingResponse.id);
+          .eq("user_id", existingResponse.user_id);
 
         if (error) {
           console.error("Error updating survey response:", error);
@@ -73,7 +72,7 @@ export const surveyService = {
       // Check if the user already has a personality comment with proper headers
       const { data: existingComment, error: fetchError } = await supabase
         .from("personality_comments")
-        .select("id")
+        .select("user_id")
         .eq("user_id", user.id)
         .maybeSingle();
 
@@ -93,7 +92,7 @@ export const surveyService = {
             ...comment,
             created_at: new Date().toISOString(),
           })
-          .eq("id", existingComment.id);
+          .eq("user_id", existingComment.user_id);
 
         if (error) {
           console.error("Error updating personality comment:", error);
@@ -102,9 +101,7 @@ export const surveyService = {
         await this.recalculateAllGroupCompatibilities(user.id);
       } else {
         // Insert new record with a try-catch to handle potential conflicts
-        const commentId = uuidv4();
         const { error } = await supabase.from("personality_comments").insert({
-          id: commentId,
           user_id: user.id,
           ...comment,
           created_at: new Date().toISOString(),

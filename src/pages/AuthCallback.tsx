@@ -20,7 +20,7 @@ export function AuthCallback() {
       const { data: profile, error } = await supabase
         .from("profiles")
         .select("*")
-        .eq("user_id", session.user.id)
+        .eq("id", session.user.id)
         .single();
 
       if (error || !profile) {
