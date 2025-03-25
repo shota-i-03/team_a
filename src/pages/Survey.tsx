@@ -18,7 +18,9 @@ export default function Survey() {
     setIdealRelationship,
   } = useSurvey();
 
-  const progress = ((currentStep + 1) / questions.length) * 100;
+  // Fix progress calculation to account for all steps including the final form
+  const totalSteps = questions.length + 1; // +1 for the final comments step
+  const progress = Math.min(((currentStep + 1) / totalSteps) * 100, 100);
 
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -30,10 +32,10 @@ export default function Survey() {
                 進捗状況
               </span>
               <span className="text-sm font-medium text-gray-700">
-                {currentStep + 1} / {questions.length + 1}
+                {currentStep + 1} / {totalSteps}
               </span>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-2.5">
+            <div className="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
               <div
                 className="bg-indigo-600 h-2.5 rounded-full transition-all duration-300"
                 style={{ width: `${progress}%` }}

@@ -90,16 +90,11 @@ export const questions = [
   },
   {
     id: "q18",
-    text: "感情をオープンに表現しますか、それとも内に秘めることが多いですか？",
-    category: "総合",
-  },
-  {
-    id: "q19",
     text: "新しい環境に適応するのが得意だ",
     category: "適応性",
   },
   {
-    id: "q20",
+    id: "q19",
     text: "人と競争するのが好きだ",
     category: "競争心",
   },
