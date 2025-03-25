@@ -20,7 +20,7 @@ export function AuthCallback() {
       const { data: profile, error } = await supabase
         .from("profiles")
         .select("*")
-        .eq("id", session.user.id)
+        .eq("user_id", session.user.id)
         .single();
 
       if (error || !profile) {
@@ -30,7 +30,7 @@ export function AuthCallback() {
         // プロフィールが存在する場合、アンケート回答状況を確認
         const { data: surveyResponse, error: surveyError } = await supabase
           .from("survey_responses")
-          .select("id")
+          .select("*")
           .eq("user_id", session.user.id)
           .maybeSingle();
 

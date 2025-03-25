@@ -8,14 +8,12 @@ export interface Profile {
 }
 
 export interface SurveyResponse {
-  id: string;
   user_id: string;
   responses: Record<string, number>;
   created_at: string;
 }
 
 export interface PersonalityComment {
-  id: string;
   user_id: string;
   desired_traits: string;
   avoid_traits: string;

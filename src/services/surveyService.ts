@@ -40,9 +40,7 @@ export const surveyService = {
         }
       } else {
         // Insert new record with a try-catch to handle potential conflicts
-        const responseId = uuidv4();
         const { error } = await supabase.from("survey_responses").insert({
-          id: responseId,
           user_id: user.id,
           responses,
           created_at: new Date().toISOString(),
