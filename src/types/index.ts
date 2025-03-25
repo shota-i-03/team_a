@@ -39,6 +39,15 @@ export interface GroupMember {
 
 export interface CompatibilityResult {
   degree: number;
-  description: string;
-  advice: string;
+  description: {
+    diagnosis_reasons: string;
+    strengths: string;
+    weaknesses: string;
+    negative_perspectives: string;
+    positive_perspectives: string;
+  };
+  advice: {
+    action_plan: string;
+    steps: string[];
+  };
 }

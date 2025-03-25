@@ -54,14 +54,18 @@ All text content (description and advice) must be in Japanese:
 
 {
   "degree": number, // An integer compatibility score from 0 to 100.
-  "description": string, // A detailed explanation with sections:
-                         // - Diagnosis Reasons: Key factors influencing the score.
-                         // - Strengths: Positive aspects of the relationship.
-                         // - Weaknesses: Potential challenges or areas for improvement.
-                         // - Negative Perspectives: Possible conflicts or mismatches.
-                         // - Positive Perspectives: Opportunities for growth and harmony.
-  "advice": string       // Practical advice and an actionable plan for improving the relationship.
-                         // Include specific steps (e.g., "Discuss differing values during a weekly meeting").
+  "description": {
+    "diagnosis_reasons": string,  // Reasons for the compatibility score.
+    "strengths": string,  // Positive aspects of the relationship.
+    "weaknesses": string,  // Areas for improvement.
+    "negative_perspectives": string,  // Potential conflicts or mismatches.
+    "positive_perspectives": string  // Opportunities for growth and harmony.
+  },  
+    "advice": {
+      "action_plan" : string, // Practical advice and an actionable plan for improving the relationship.
+      "steps": string[]  // Include specific steps (e.g., "Discuss differing values during a weekly meeting").
+    }
+  }
 }
   Ensure that:
 - The "description" is formatted in markdown, covering all specified sections in a clear and balanced manner.
@@ -72,8 +76,8 @@ All text content (description and advice) must be in Japanese:
     const result = await model.generateContent(prompt);
     const response = await result.response;
 
-    console.log(response.text());
     const text = response.text().trim();
+    console.log(text);
     // Remove markdown code block if present
     const cleanText = text.replace(/```json\n?|\n?```/g, "").trim();
     try {
@@ -90,16 +94,25 @@ All text content (description and advice) must be in Japanese:
     personBId: string,
     result: CompatibilityResult
   ) {
-    const { error } = await supabase.from("compatibility_results").insert({
-      id: uuidv4(),
-      group_id: groupId,
-      user_a_id: personAId,
-      user_b_id: personBId,
-      degree: result.degree,
-      description: result.description,
-      advice: result.advice,
-      created_at: new Date().toISOString(),
-    });
+    // user_a_id と user_b_id の順番を関係なく同じペアとして扱うために
+    const sortedIds = [personAId, personBId].sort();
+
+    const { error } = await supabase.from("compatibility_results").upsert(
+      {
+        id: uuidv4(),
+        group_id: groupId,
+        user_a_id: sortedIds[0],
+        user_b_id: sortedIds[1],
+        degree: result.degree,
+        description: result.description,
+        advice: result.advice,
+        created_at: new Date().toISOString(),
+      },
+      {
+        onConflict: "user_a_id,user_b_id,group_id",
+        ignoreDuplicates: false,
+      }
+    );
 
     if (error) throw error;
   },
@@ -131,12 +144,6 @@ All text content (description and advice) must be in Japanese:
         existingMemberData
       );
 
-      await this.saveCompatibilityResult(
-        groupId,
-        newMemberId,
-        member.user_id,
-        result
-      );
       await this.saveCompatibilityResult(
         groupId,
         member.user_id,

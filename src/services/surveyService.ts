@@ -29,7 +29,7 @@ export const surveyService = {
           .from("survey_responses")
           .update({
             responses,
-            updated_at: new Date().toISOString()
+            created_at: new Date().toISOString(),
           })
           .eq("id", existingResponse.id);
 
@@ -76,7 +76,10 @@ export const surveyService = {
         .maybeSingle();
 
       if (fetchError) {
-        console.error("Error fetching existing personality comment:", fetchError);
+        console.error(
+          "Error fetching existing personality comment:",
+          fetchError
+        );
         // Continue with insert attempt even if fetch fails
       }
 
@@ -86,7 +89,7 @@ export const surveyService = {
           .from("personality_comments")
           .update({
             ...comment,
-            updated_at: new Date().toISOString()
+            created_at: new Date().toISOString(),
           })
           .eq("id", existingComment.id);
 

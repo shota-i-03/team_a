@@ -118,15 +118,12 @@ export default function GroupRegistration() {
                         <div className="font-medium text-gray-900">
                           {group.name}
                         </div>
-                        <div className="text-sm text-gray-500">
-                          ID: {group.group_id}
-                        </div>
                       </button>
                     ))}
                   </div>
                 ) : (
                   <div className="text-center py-4 text-gray-500">
-                    グループはありません
+                    参加可能なグループはありません
                   </div>
                 )}
               </div>

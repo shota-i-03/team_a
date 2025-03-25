@@ -14,10 +14,35 @@ export const useCompatibility = () => {
   const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [groupName, setGroupName] = useState<string>("グループ");
 
   useEffect(() => {
-    fetchMembers();
+    fetchGroupData();
   }, [groupId]);
+
+  const fetchGroupData = async () => {
+    try {
+      setLoading(true);
+      // グループ名を取得
+      const { data: groupData, error: groupError } = await supabase
+        .from("groups")
+        .select("name")
+        .eq("group_id", groupId)
+        .single();
+
+      if (groupError) throw groupError;
+      if (groupData) {
+        setGroupName(groupData.name);
+      }
+
+      await fetchMembers();
+    } catch (error) {
+      console.error("グループデータ取得エラー:", error);
+      setError("グループ情報の取得に失敗しました");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const fetchMembers = async () => {
     try {
@@ -54,8 +79,6 @@ export const useCompatibility = () => {
     } catch (error) {
       console.error("メンバー取得エラー:", error);
       setError("メンバー情報の取得に失敗しました");
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -97,5 +120,6 @@ export const useCompatibility = () => {
     loading,
     error,
     fetchCompatibility,
+    groupName,
   };
 };

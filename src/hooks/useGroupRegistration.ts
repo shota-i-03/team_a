@@ -25,8 +25,25 @@ export function useGroupRegistration() {
   const fetchGroups = async () => {
     try {
       setLoading(true);
-      const data = await groupService.getGroups();
-      setGroups(data);
+      const user = await authService.getCurrentUser();
+      if (!user) {
+        setError("ユーザーが見つかりません");
+        return;
+      }
+
+      // 全グループを取得
+      const allGroups = await groupService.getGroups();
+
+      // ユーザーが所属しているグループを取得
+      const userGroups = await groupService.getUserGroups(user.id);
+      const userGroupIds = new Set(userGroups.map((group) => group.group_id));
+
+      // 所属していないグループのみをフィルタリング
+      const availableGroups = allGroups.filter(
+        (group) => !userGroupIds.has(group.group_id)
+      );
+
+      setGroups(availableGroups);
     } catch (err) {
       console.error("グループ一覧の取得に失敗:", err);
       setGroups([]);

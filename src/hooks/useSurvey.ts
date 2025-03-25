@@ -138,7 +138,7 @@ export function useSurvey() {
           ideal_relationship: idealRelationship,
         }),
       ]);
-      navigate("/group-registration");
+      navigate("/groups");
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "予期せぬエラーが発生しました"
