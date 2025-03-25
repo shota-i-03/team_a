@@ -3,6 +3,8 @@ import { useCompatibility } from "../hooks/useCompatibility";
 import { CompatibilityResult } from "../types";
 import { useNavigate } from "react-router-dom";
 import { useCompatibilityAnimation } from "../hooks/useCompatibilityAnimation";
+import { LoadingSpinner } from "../components/LoadingSpinner";
+import { ErrorMessage } from "../components/ErrorMessage";
 
 export const CompatibilityDiagnosis: React.FC = () => {
   const navigate = useNavigate();
@@ -48,19 +50,11 @@ export const CompatibilityDiagnosis: React.FC = () => {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
-      </div>
-    );
+    return <LoadingSpinner fullScreen />;
   }
 
   if (error) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-red-600">Error: {error}</div>
-      </div>
-    );
+    return <ErrorMessage message={error} fullScreen />;
   }
 
   return (

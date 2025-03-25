@@ -1,5 +1,7 @@
 import React from "react";
 import { questions, useSurvey } from "../hooks/useSurvey";
+import { LoadingSpinner } from "../components/LoadingSpinner";
+import { ErrorMessage } from "../components/ErrorMessage";
 
 export default function Survey() {
   const {
@@ -9,6 +11,8 @@ export default function Survey() {
     avoidTraits,
     idealRelationship,
     error,
+    isLoading,
+    loadingMessage,
     handleAnswer,
     handleNext,
     handleBack,
@@ -17,6 +21,14 @@ export default function Survey() {
     setAvoidTraits,
     setIdealRelationship,
   } = useSurvey();
+
+  if (error) {
+    return <ErrorMessage message={error} fullScreen />;
+  }
+
+  if (isLoading) {
+    return <LoadingSpinner fullScreen message={loadingMessage} />;
+  }
 
   // Fix progress calculation to account for all steps including the final form
   const totalSteps = questions.length + 1; // +1 for the final comments step
@@ -42,12 +54,6 @@ export default function Survey() {
               ></div>
             </div>
           </div>
-
-          {error && (
-            <div className="mb-4 p-4 bg-red-50 text-red-700 rounded-md">
-              {error}
-            </div>
-          )}
 
           <div className="space-y-6">
             {currentStep < questions.length ? (

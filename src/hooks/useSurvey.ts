@@ -108,6 +108,8 @@ export function useSurvey() {
   const [avoidTraits, setAvoidTraits] = useState("");
   const [idealRelationship, setIdealRelationship] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState("");
 
   const handleAnswer = (questionId: string, value: number) => {
     setAnswers((prev) => ({
@@ -130,19 +132,29 @@ export function useSurvey() {
 
   const handleSubmit = async () => {
     try {
+      setIsLoading(true);
+      setLoadingMessage("プロフィールを設定しています...");
+
       await Promise.all([
         surveyService.saveSurveyResponse(answers),
-        surveyService.savePersonalityComment({
-          desired_traits: desiredTraits,
-          avoid_traits: avoidTraits,
-          ideal_relationship: idealRelationship,
-        }),
+        surveyService.savePersonalityComment(
+          {
+            desired_traits: desiredTraits,
+            avoid_traits: avoidTraits,
+            ideal_relationship: idealRelationship,
+          },
+          (message) => setLoadingMessage(message)
+        ),
       ]);
-      navigate("/groups");
+
+      navigate("/home");
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "予期せぬエラーが発生しました"
       );
+    } finally {
+      setIsLoading(false);
+      setLoadingMessage("");
     }
   };
 
@@ -153,6 +165,8 @@ export function useSurvey() {
     avoidTraits,
     idealRelationship,
     error,
+    isLoading,
+    loadingMessage,
     handleAnswer,
     handleNext,
     handleBack,

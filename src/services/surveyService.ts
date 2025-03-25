@@ -1,4 +1,5 @@
 import { supabase } from "../lib/supabase";
+import { compatibilityService } from "./compatibilityService";
 import { SurveyResponse, PersonalityComment } from "../types";
 import { v4 as uuidv4 } from "uuid";
 
@@ -59,7 +60,8 @@ export const surveyService = {
   },
 
   async savePersonalityComment(
-    comment: Omit<PersonalityComment, "id" | "user_id" | "created_at">
+    comment: Omit<PersonalityComment, "id" | "user_id" | "created_at">,
+    onLoading?: (message: string) => void
   ) {
     try {
       const {
@@ -67,6 +69,8 @@ export const surveyService = {
         error: userError,
       } = await supabase.auth.getUser();
       if (userError || !user) throw new Error("認証エラー");
+
+      onLoading?.("プロフィールを更新しています...");
 
       // Check if the user already has a personality comment with proper headers
       const { data: existingComment, error: fetchError } = await supabase
@@ -97,6 +101,7 @@ export const surveyService = {
           console.error("Error updating personality comment:", error);
           throw error;
         }
+        await this.recalculateAllGroupCompatibilities(user.id);
       } else {
         // Insert new record with a try-catch to handle potential conflicts
         const commentId = uuidv4();
@@ -114,6 +119,33 @@ export const surveyService = {
       }
     } catch (error) {
       console.error("Personality comment save failed:", error);
+      throw error;
+    }
+  },
+
+  // 所属グループ内の全メンバーとの相性診断を更新
+  async recalculateAllGroupCompatibilities(userId: string) {
+    try {
+      // 所属グループの取得
+      const { data: groupMembers, error: groupError } = await supabase
+        .from("group_members")
+        .select("group_id")
+        .eq("user_id", userId);
+
+      if (groupError) throw groupError;
+
+      // 各グループでの処理
+      for (const { group_id } of groupMembers) {
+        // 各メンバーとの相性を再計算
+        await compatibilityService.generateAndSaveCompatibilityForNewMember(
+          group_id,
+          userId
+        );
+      }
+
+      console.log("全グループメンバーとの相性診断を更新しました");
+    } catch (error) {
+      console.error("相性診断の更新に失敗:", error);
       throw error;
     }
   },
