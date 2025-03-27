@@ -1,17 +1,26 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 
 export function AuthCallback() {
   const navigate = useNavigate();
   const location = useLocation();
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const checkProfileAndRedirect = async () => {
       try {
-        // URLフラグメント内のアクセストークンをSupabaseが処理できるようにする
-        // ハッシュフラグメントが存在する場合、Supabaseはこれを自動的に処理する
-        console.log("認証コールバック処理中...");
+        // 現在の環境情報をログに出力（問題診断用）
+        console.log({
+          level: "INFO",
+          message: "認証コールバック処理開始",
+          context: {
+            currentUrl: window.location.href,
+            origin: window.location.origin,
+            pathname: location.pathname,
+            hash: location.hash,
+          }
+        });
         
         // セッションの取得を待つ
         let retryCount = 0;
@@ -24,6 +33,11 @@ export function AuthCallback() {
           } = await supabase.auth.getSession();
           if (currentSession) {
             session = currentSession;
+            console.log({
+              level: "INFO", 
+              message: "セッション取得成功",
+              context: { userId: currentSession.user.id }
+            });
             break;
           }
           // 1秒待って再試行
@@ -32,7 +46,12 @@ export function AuthCallback() {
         }
 
         if (!session) {
-          console.error("セッションの取得に失敗しました");
+          console.error({
+            level: "ERROR",
+            message: "セッションの取得に失敗しました",
+            context: { retryCount, maxRetries }
+          });
+          setError("認証に失敗しました。再度ログインしてください。");
           navigate("/register");
           return;
         }
@@ -56,7 +75,11 @@ export function AuthCallback() {
             .maybeSingle();
 
           if (surveyError) {
-            console.error("Survey response check failed:", surveyError);
+            console.error({
+              level: "ERROR",
+              message: "アンケート回答確認エラー", 
+              context: { error: surveyError }
+            });
           }
 
           if (!surveyResponse) {
@@ -68,7 +91,12 @@ export function AuthCallback() {
           }
         }
       } catch (error) {
-        console.error("認証コールバックエラー:", error);
+        console.error({
+          level: "ERROR",
+          message: "認証コールバックエラー",
+          context: { error }
+        });
+        setError("認証処理中にエラーが発生しました。再度ログインしてください。");
         navigate("/register");
       }
     };
@@ -79,8 +107,14 @@ export function AuthCallback() {
   return (
     <div className="min-h-screen flex items-center justify-center">
       <div className="text-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
-        <p className="mt-4 text-gray-600">ログイン処理中...</p>
+        {error ? (
+          <div className="text-red-600 mb-4">{error}</div>
+        ) : (
+          <>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600">ログイン処理中...</p>
+          </>
+        )}
       </div>
     </div>
   );

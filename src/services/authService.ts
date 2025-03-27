@@ -14,11 +14,16 @@ export interface User {
 
 export const authService = {
   async signInWithGoogle() {
+    // 環境変数が設定されていればそれを使用し、なければ現在のオリジンを使用
+    const redirectUrl = import.meta.env.VITE_AUTH_REDIRECT_URL || `${window.location.origin}/auth-callback`;
+    
+    // デバッグ情報（本番環境では削除可能）
+    console.log(`認証リダイレクトURL: ${redirectUrl}`);
+    
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/auth-callback`,
-        // ハッシュフラグメントを処理できるようにqueryParamsを追加
+        redirectTo: redirectUrl,
         queryParams: {
           access_type: 'offline',
           prompt: 'consent',
