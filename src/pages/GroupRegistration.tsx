@@ -133,10 +133,17 @@ export default function GroupRegistration() {
 
             <button
               type="submit"
-              disabled={mode === "join" && !formData.group_id}
+              disabled={(mode === "join" && !formData.group_id) || loading}
               className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
             >
-              {mode === "create" ? "グループを作成" : "グループに参加"}
+              {loading ? (
+                <div className="flex items-center justify-center">
+                  <div className="animate-spin h-4 w-4 border-2 border-white rounded-full border-t-transparent mr-2"></div>
+                  <span>処理中...</span>
+                </div>
+              ) : (
+                mode === "create" ? "グループを作成" : "グループに参加"
+              )}
             </button>
           </form>
         </div>

@@ -23,11 +23,24 @@ export const useCompatibilityAnimation = (
     }
 
     const targetValue = compatibilityResult.degree;
-    const duration = 1000; // 1秒
+    const duration = 60; // 0.06秒
+    const frameInterval = 33; // 30FPSの場合の間隔（ミリ秒）
     let startTimestamp: number | null = null;
+    let lastFrameTime: number | null = null;
 
     const step = (timestamp: number) => {
       if (!startTimestamp) startTimestamp = timestamp;
+      
+      // フレームレート制限のチェック
+      if (lastFrameTime && timestamp - lastFrameTime < frameInterval) {
+        // 前回のフレームから十分な時間が経過していない場合は次のフレームを待つ
+        window.requestAnimationFrame(step);
+        return;
+      }
+      
+      // 現在のフレーム時間を記録
+      lastFrameTime = timestamp;
+      
       const progress = Math.min((timestamp - startTimestamp) / duration, 1);
 
       setCountUpValue(Math.floor(progress * targetValue));
@@ -44,6 +57,7 @@ export const useCompatibilityAnimation = (
 
     return () => {
       startTimestamp = null;
+      lastFrameTime = null;
     };
   }, [compatibilityResult]);
 
