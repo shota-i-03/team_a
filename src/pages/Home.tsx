@@ -19,6 +19,9 @@ export default function Home() {
     removingMember,
     setRemovingMember,
     handleRemoveMember,
+    setIsDeletingAccount,
+    isDeletingAccount,
+    handleDeleteAccount,
   } = useHome();
 
   if (loading) {
@@ -43,50 +46,58 @@ export default function Home() {
         <div className="px-4 py-6 sm:px-0">
           {/* プロフィールセクション */}
           <div className="bg-white shadow rounded-lg p-6 mb-6">
-            <div className="flex items-center space-x-4">
-              <div className="flex-shrink-0">
-                <div className="h-12 w-12 rounded-full bg-indigo-100 flex items-center justify-center">
-                  <svg
-                    className="h-6 w-6 text-indigo-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                    />
-                  </svg>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <div className="flex-shrink-0">
+                  <div className="h-12 w-12 rounded-full bg-indigo-100 flex items-center justify-center">
+                    <svg
+                      className="h-6 w-6 text-indigo-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                      />
+                    </svg>
+                  </div>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-lg font-medium text-gray-900">
+                    {profile?.name}
+                  </h3>
+                  <div className="mt-1 flex flex-wrap gap-2">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+                      MBTI: {profile?.mbti || "未設定"}
+                    </span>
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                      血液型: {profile?.blood_type || "未設定"}
+                    </span>
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                      星座: {profile?.zodiac || "未設定"}
+                    </span>
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                      生年月日: {profile?.birthdate || "未設定"}
+                    </span>
+                  </div>
                 </div>
               </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="text-lg font-medium text-gray-900">
-                  {profile?.name}
-                </h3>
-                <div className="mt-1 flex flex-wrap gap-2">
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
-                    MBTI: {profile?.mbti || "未設定"}
-                  </span>
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                    血液型: {profile?.blood_type || "未設定"}
-                  </span>
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                    星座: {profile?.zodiac || "未設定"}
-                  </span>
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                    生年月日: {profile?.birthdate || "未設定"}
-                  </span>
-                </div>
-              </div>
-              <div className="flex-shrink-0">
+              <div className="flex space-x-2">
                 <button
-                  onClick={() => navigate("/survey")}
+                  onClick={() => navigate("/profile-setup")}
                   className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                 >
                   プロフィールを編集
+                </button>
+                <button
+                  onClick={() => setIsDeletingAccount(true)}
+                  className="inline-flex items-center px-4 py-2 border border-red-300 text-sm font-medium rounded-md text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                >
+                  アカウントを削除
                 </button>
               </div>
             </div>
@@ -269,7 +280,17 @@ export default function Home() {
                           onClick={() =>
                             navigate(`/compatibility/${group.group_id}`)
                           }
-                          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                          disabled={group.member_count <= 1}
+                          className={`inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white ${
+                            group.member_count <= 1
+                              ? "bg-gray-400 cursor-not-allowed"
+                              : "bg-indigo-600 hover:bg-indigo-700"
+                          } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500`}
+                          title={
+                            group.member_count <= 1
+                              ? "相性診断には2人以上のメンバーが必要です"
+                              : "相性診断を見る"
+                          }
                         >
                           相性診断を見る
                         </button>
@@ -436,6 +457,49 @@ export default function Home() {
                   type="button"
                   className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:col-start-1 sm:text-sm"
                   onClick={() => setDeletingGroup(null)}
+                >
+                  キャンセル
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* アカウント削除確認ダイアログ */}
+      {isDeletingAccount && (
+        <div className="fixed z-10 inset-0 overflow-y-auto">
+          <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div
+              className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
+              onClick={() => setIsDeletingAccount(false)}
+            ></div>
+
+            <div className="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
+              <div>
+                <div className="mt-3 text-center sm:mt-5">
+                  <h3 className="text-lg leading-6 font-medium text-gray-900">
+                    アカウントを削除しますか？
+                  </h3>
+                  <div className="mt-2">
+                    <p className="text-sm text-gray-500">
+                      この操作は取り消せません。アカウントを削除すると、すべてのデータ（プロフィール、グループ、相性診断結果など）が完全に削除されます。
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="mt-5 sm:mt-6 sm:grid sm:grid-cols-2 sm:gap-3 sm:grid-flow-row-dense">
+                <button
+                  type="button"
+                  className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:col-start-2 sm:text-sm"
+                  onClick={handleDeleteAccount}
+                >
+                  削除する
+                </button>
+                <button
+                  type="button"
+                  className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:col-start-1 sm:text-sm"
+                  onClick={() => setIsDeletingAccount(false)}
                 >
                   キャンセル
                 </button>

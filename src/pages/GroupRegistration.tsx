@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useGroupRegistration } from "../hooks/useGroupRegistration";
+import { LoadingSpinner } from "../components/LoadingSpinner";
 
 export default function GroupRegistration() {
   const navigate = useNavigate();
@@ -13,7 +14,21 @@ export default function GroupRegistration() {
     groups,
     loading,
     handleSubmit,
+    isLoading,
   } = useGroupRegistration();
+
+  if (loading || isLoading) {
+    return (
+      <LoadingSpinner
+        fullScreen
+        message={
+          loading
+            ? "グループを作成しています..."
+            : "グループメンバーとの相性診断を生成しています..."
+        }
+      />
+    );
+  }
 
   if (!mode) {
     return (

@@ -13,6 +13,8 @@ import { Layout } from "./components/Layout";
 import { ProfileSetup } from "./pages/ProfileSetup";
 import { CompatibilityDiagnosis } from "./pages/CompatibilityDiagnosis";
 import Survey from "./pages/Survey";
+import ThankYou from "./pages/ThankYou";
+
 function App() {
   return (
     <Router>
@@ -29,6 +31,7 @@ function App() {
             path="/compatibility/:groupId"
             element={<CompatibilityDiagnosis />}
           />
+          <Route path="/thank-you" element={<ThankYou />} />
         </Routes>
       </Layout>
     </Router>

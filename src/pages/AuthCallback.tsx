@@ -7,44 +7,64 @@ export function AuthCallback() {
 
   useEffect(() => {
     const checkProfileAndRedirect = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+      try {
+        // セッションの取得を待つ
+        let retryCount = 0;
+        const maxRetries = 5;
+        let session = null;
 
-      if (!session) {
-        navigate("/");
-        return;
-      }
+        while (retryCount < maxRetries) {
+          const {
+            data: { session: currentSession },
+          } = await supabase.auth.getSession();
+          if (currentSession) {
+            session = currentSession;
+            break;
+          }
+          // 1秒待って再試行
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+          retryCount++;
+        }
 
-      // プロフィール情報を取得
-      const { data: profile, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", session.user.id)
-        .single();
+        if (!session) {
+          console.error("セッションの取得に失敗しました");
+          navigate("/register");
+          return;
+        }
 
-      if (error || !profile) {
-        // プロフィールが存在しない場合は設定ページへ
-        navigate("/profile-setup");
-      } else {
-        // プロフィールが存在する場合、アンケート回答状況を確認
-        const { data: surveyResponse, error: surveyError } = await supabase
-          .from("survey_responses")
+        // プロフィール情報を取得
+        const { data: profile, error } = await supabase
+          .from("profiles")
           .select("*")
-          .eq("user_id", session.user.id)
-          .maybeSingle();
+          .eq("id", session.user.id)
+          .single();
 
-        if (surveyError) {
-          console.error("Survey response check failed:", surveyError);
-        }
-
-        if (!surveyResponse) {
-          // アンケートに回答していない場合はアンケートページへ
-          navigate("/survey");
+        if (error || !profile) {
+          // プロフィールが存在しない場合は設定ページへ
+          navigate("/profile-setup");
         } else {
-          // アンケートに回答済みの場合はホームへ
-          navigate("/home");
+          // プロフィールが存在する場合、アンケート回答状況を確認
+          const { data: surveyResponse, error: surveyError } = await supabase
+            .from("survey_responses")
+            .select("*")
+            .eq("user_id", session.user.id)
+            .maybeSingle();
+
+          if (surveyError) {
+            console.error("Survey response check failed:", surveyError);
+          }
+
+          if (!surveyResponse) {
+            // アンケートに回答していない場合はアンケートページへ
+            navigate("/survey");
+          } else {
+            // アンケートに回答済みの場合はホームへ
+            navigate("/home");
+          }
         }
+      } catch (error) {
+        console.error("認証コールバックエラー:", error);
+        navigate("/register");
       }
     };
 

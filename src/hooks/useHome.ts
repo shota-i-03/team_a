@@ -25,6 +25,7 @@ export const useHome = () => {
     userId: string;
     name: string;
   } | null>(null);
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
 
   useEffect(() => {
     checkAuthAndFetchGroups();
@@ -128,15 +129,24 @@ export const useHome = () => {
     }
   };
 
+  const handleDeleteAccount = async () => {
+    try {
+      // ユーザーのデータを削除
+      await authService.deleteAccount();
+      // 感謝ページにリダイレクト
+      navigate("/thank-you");
+    } catch (error) {
+      console.error("アカウント削除エラー:", error);
+      setError("アカウントの削除に失敗しました");
+      setIsDeletingAccount(false);
+    }
+  };
+
   return {
     groups,
     loading,
     error,
     profile,
-    handleLeaveGroup,
-    handleDeleteGroup,
-    fetchProfile,
-    navigate,
     leavingGroup,
     setLeavingGroup,
     deletingGroup,
@@ -145,6 +155,12 @@ export const useHome = () => {
     toggleGroup,
     removingMember,
     setRemovingMember,
+    handleLeaveGroup,
+    handleDeleteGroup,
     handleRemoveMember,
+    navigate,
+    isDeletingAccount,
+    setIsDeletingAccount,
+    handleDeleteAccount,
   };
 };

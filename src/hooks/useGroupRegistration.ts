@@ -15,6 +15,7 @@ export function useGroupRegistration() {
   const [error, setError] = useState<string | null>(null);
   const [groups, setGroups] = useState<Group[]>([]);
   const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (mode === "join") {
@@ -54,7 +55,7 @@ export function useGroupRegistration() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    setIsLoading(true);
     setError(null);
 
     try {
@@ -80,7 +81,7 @@ export function useGroupRegistration() {
       console.error("予期せぬエラー:", err);
       setError("予期せぬエラーが発生しました。もう一度お試しください。");
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -93,5 +94,6 @@ export function useGroupRegistration() {
     groups,
     loading,
     handleSubmit,
+    isLoading,
   };
 }
