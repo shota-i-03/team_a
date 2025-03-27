@@ -1,13 +1,18 @@
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 
 export function AuthCallback() {
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const checkProfileAndRedirect = async () => {
       try {
+        // URLフラグメント内のアクセストークンをSupabaseが処理できるようにする
+        // ハッシュフラグメントが存在する場合、Supabaseはこれを自動的に処理する
+        console.log("認証コールバック処理中...");
+        
         // セッションの取得を待つ
         let retryCount = 0;
         const maxRetries = 5;
@@ -69,13 +74,13 @@ export function AuthCallback() {
     };
 
     checkProfileAndRedirect();
-  }, [navigate]);
+  }, [navigate, location]);
 
   return (
     <div className="min-h-screen flex items-center justify-center">
       <div className="text-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
-        <p className="mt-4 text-gray-600">Completing sign in...</p>
+        <p className="mt-4 text-gray-600">ログイン処理中...</p>
       </div>
     </div>
   );
