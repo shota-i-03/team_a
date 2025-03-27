@@ -320,17 +320,6 @@ export const CompatibilityDiagnosis: React.FC = () => {
                         </ul>
                       </div>
                     </div>
-
-                    {/* 再診断ボタン */}
-                    <div className="mt-6 flex justify-end">
-                      <button
-                        onClick={() => generateGroupCompatibility(true)}
-                        className="px-4 py-2 bg-purple-100 text-purple-700 rounded-md hover:bg-purple-200 transition-colors"
-                        disabled={groupDiagnosisLoading}
-                      >
-                        {groupDiagnosisLoading ? "診断中..." : "再診断する"}
-                      </button>
-                    </div>
                   </div>
                 </div>
               ) : (
