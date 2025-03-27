@@ -9,9 +9,7 @@ export function Register() {
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center">
-          <div className="relative">
-            <Users className="h-12 w-12 text-indigo-600" />
-          </div>
+          <img src="/Logo.png" alt="グループ相性診断" className="h-24 w-auto" />
         </div>
         <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
           グループ相性診断

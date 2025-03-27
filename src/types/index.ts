@@ -49,3 +49,29 @@ export interface CompatibilityResult {
     steps: string[];
   };
 }
+
+export interface GroupCompatibilityResult {
+  id: string;
+  group_id: string;
+  average_degree: number;
+  best_pair: {
+    user_ids: string[];
+    names: string[];
+    degree: number;
+  };
+  worst_pair: {
+    user_ids: string[];
+    names: string[];
+    degree: number;
+  };
+  analysis: {
+    overall_assessment: string;
+    group_strengths: string;
+    group_challenges: string;
+    relationship_dynamics: string;
+    growth_opportunities: string;
+    action_plan: string;
+    recommendations: string[];
+  };
+  created_at: string;
+}

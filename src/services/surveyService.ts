@@ -136,6 +136,13 @@ export const surveyService = {
           group_id,
           userId
         );
+
+        // グループ全体の相性診断も更新
+        try {
+          await compatibilityService.generateAndSaveGroupCompatibility(group_id);
+        } catch (error) {
+          console.error("グループ全体の相性診断更新エラー:", error);
+        }
       }
 
       console.log("全グループメンバーとの相性診断を更新しました");

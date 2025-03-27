@@ -24,7 +24,7 @@ export function Layout({ children }: LayoutProps) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <Users className="h-6 w-6 text-indigo-600" />
+              <img src="/Logo.png" alt="グループ相性診断" className="h-12 w-auto" />
               <h1 className="text-xl font-semibold text-gray-900">
                 グループ相性診断
               </h1>
