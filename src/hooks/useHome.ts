@@ -37,7 +37,6 @@ export const useHome = () => {
       const user = await authService.getCurrentUser();
       if (!user) {
         navigate("/register");
-        return;
       }
       await fetchGroups();
     } catch (error) {

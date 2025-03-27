@@ -4,7 +4,7 @@ import {
   SurveyResponse,
   PersonalityComment,
   CompatibilityResult,
-  GroupCompatibilityResult
+  GroupCompatibilityResult,
 } from "../types";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { v4 as uuidv4 } from "uuid";
@@ -81,7 +81,10 @@ export const compatibilityService = {
       }
 
       // 標準的な5段階評価を使用（q1-q15, q18-q19など）
-      return standardScaleMeaning[value as keyof typeof standardScaleMeaning] || "不明な回答";
+      return (
+        standardScaleMeaning[value as keyof typeof standardScaleMeaning] ||
+        "不明な回答"
+      );
     };
 
     // 質問と回答の詳細を含むオブジェクトを作成
@@ -220,7 +223,7 @@ All text content (description and advice) must be in Japanese:
       .eq("group_id", groupId);
 
     if (error) throw error;
-    if (!results || results.length === 0) {
+    if (!results) {
       throw new Error("グループの相性診断結果が見つかりません");
     }
 
@@ -260,7 +263,8 @@ All text content (description and advice) must be in Japanese:
       // 名前を設定
       if (profiles) {
         pair.names = pair.userIds.map(
-          (userId) => profiles.find((p) => p.id === userId)?.name || "不明なユーザー"
+          (userId) =>
+            profiles.find((p) => p.id === userId)?.name || "不明なユーザー"
         );
       }
     }
@@ -291,7 +295,20 @@ All text content (description and advice) must be in Japanese:
 
     if (memberError) throw memberError;
     if (!members || members.length < 2) {
-      throw new Error("グループにはメンバーが2人以上必要です");
+      return {
+        averageDegree: 0,
+        bestPair: { userIds: ["", ""], names: ["", ""], degree: 0 },
+        worstPair: { userIds: ["", ""], names: ["", ""], degree: 0 },
+        analysis: {
+          overall_assessment: "グループにはメンバーが2人以上必要です",
+          group_strengths: "",
+          group_challenges: "",
+          relationship_dynamics: "",
+          growth_opportunities: "",
+          action_plan: "",
+          recommendations: [],
+        },
+      };
     }
 
     // グループ情報を取得
@@ -304,10 +321,14 @@ All text content (description and advice) must be in Japanese:
     if (groupError) throw groupError;
 
     // 平均相性度を計算
-    const averageDegree = await this.calculateGroupCompatibilityAverage(groupId);
+    const averageDegree = await this.calculateGroupCompatibilityAverage(
+      groupId
+    );
 
     // ベスト・ワーストペアを特定
-    const { bestPair, worstPair } = await this.identifyBestAndWorstPairs(groupId);
+    const { bestPair, worstPair } = await this.identifyBestAndWorstPairs(
+      groupId
+    );
 
     // すべてのメンバーの詳細データを取得
     const memberDataPromises = members.map((member) =>
@@ -322,8 +343,12 @@ All text content (description and advice) must be in Japanese:
 グループ名: ${groupData.name}
 メンバー数: ${members.length}人
 平均相性度: ${averageDegree}%
-最も相性の良いペア: ${bestPair.names[0]}と${bestPair.names[1]} (${bestPair.degree}%)
-最も改善が必要なペア: ${worstPair.names[0]}と${worstPair.names[1]} (${worstPair.degree}%)
+最も相性の良いペア: ${bestPair.names[0]}と${bestPair.names[1]} (${
+      bestPair.degree
+    }%)
+最も改善が必要なペア: ${worstPair.names[0]}と${worstPair.names[1]} (${
+      worstPair.degree
+    }%)
 
 # メンバーデータ
 ${JSON.stringify(membersData, null, 2)}
@@ -396,11 +421,8 @@ ${JSON.stringify(membersData, null, 2)}
       throw new Error("グループIDが指定されていません");
     }
 
-
-
     const { error } = await supabase.from("group_compatibility_results").upsert(
       {
-        id: uuidv4(),
         group_id: groupId,
         average_degree: result.averageDegree,
         best_pair: {
@@ -444,7 +466,7 @@ ${JSON.stringify(membersData, null, 2)}
     };
   }> {
     // 入力検証
-    if (!groupId || typeof groupId !== 'string') {
+    if (!groupId || typeof groupId !== "string") {
       throw new Error("無効なグループIDが指定されました");
     }
 
@@ -466,7 +488,7 @@ ${JSON.stringify(membersData, null, 2)}
   async getGroupCompatibilityResult(groupId: string) {
     try {
       // 入力検証: groupIdが正しい形式かチェック
-      if (!groupId || typeof groupId !== 'string') {
+      if (!groupId || typeof groupId !== "string") {
         console.error("無効なgroup_id:", groupId);
         throw new Error("有効なグループIDを指定してください");
       }
@@ -493,7 +515,7 @@ ${JSON.stringify(membersData, null, 2)}
       return data[0];
     } catch (error) {
       // テーブルが存在しないエラーの場合は表示しない（既に上で処理済み）
-      if (!(error as any)?.message?.includes('does not exist')) {
+      if (!(error as any)?.message?.includes("does not exist")) {
         console.error("相性診断結果取得エラー:", error);
       }
       // nullを返すことでGeminiでの生成にフォールバックする
@@ -599,11 +621,16 @@ ${JSON.stringify(membersData, null, 2)}
 
     // 全ての個別相性診断が完了した後、グループ全体の相性診断を実行
     try {
-      console.log(`新メンバー追加に伴いグループ全体の相性診断を更新します: ${groupId}`);
+      console.log(
+        `新メンバー追加に伴いグループ全体の相性診断を更新します: ${groupId}`
+      );
       await this.generateAndSaveGroupCompatibility(groupId);
       console.log(`グループ全体の相性診断更新完了: ${groupId}`);
     } catch (error) {
-      console.error(`グループ全体の相性診断更新中にエラーが発生: ${groupId}`, error);
+      console.error(
+        `グループ全体の相性診断更新中にエラーが発生: ${groupId}`,
+        error
+      );
       // グループ全体の診断に失敗しても、個別の相性診断は既に完了しているため処理は続行
     }
   },
@@ -622,7 +649,10 @@ ${JSON.stringify(membersData, null, 2)}
         .single();
 
       if (profileError) {
-        console.error(`ユーザー ${userId} のプロフィール取得エラー:`, profileError);
+        console.error(
+          `ユーザー ${userId} のプロフィール取得エラー:`,
+          profileError
+        );
         throw profileError;
       }
 
@@ -638,8 +668,12 @@ ${JSON.stringify(membersData, null, 2)}
         .eq("user_id", userId)
         .single();
 
-      if (surveyError && surveyError.code !== 'PGRST116') { // PGRST116 は "結果なし" エラー
-        console.error(`ユーザー ${userId} のアンケート回答取得エラー:`, surveyError);
+      if (surveyError && surveyError.code !== "PGRST116") {
+        // PGRST116 は "結果なし" エラー
+        console.error(
+          `ユーザー ${userId} のアンケート回答取得エラー:`,
+          surveyError
+        );
         throw surveyError;
       }
 
@@ -650,8 +684,11 @@ ${JSON.stringify(membersData, null, 2)}
         .eq("user_id", userId)
         .single();
 
-      if (commentError && commentError.code !== 'PGRST116') {
-        console.error(`ユーザー ${userId} のパーソナリティコメント取得エラー:`, commentError);
+      if (commentError && commentError.code !== "PGRST116") {
+        console.error(
+          `ユーザー ${userId} のパーソナリティコメント取得エラー:`,
+          commentError
+        );
         throw commentError;
       }
 
@@ -667,7 +704,9 @@ ${JSON.stringify(membersData, null, 2)}
   },
 
   // グループの相性診断結果を取得または生成する関数
-  async ensureGroupCompatibilityResult(groupId: string): Promise<GroupCompatibilityResult | null> {
+  async ensureGroupCompatibilityResult(
+    groupId: string
+  ): Promise<GroupCompatibilityResult | null> {
     try {
       // まず既存の結果を取得
       const existingResult = await this.getGroupCompatibilityResult(groupId);
@@ -683,21 +722,21 @@ ${JSON.stringify(membersData, null, 2)}
 
       // UIで表示できる形式に変換
       const formattedResult: GroupCompatibilityResult = {
-        id: 'generated-' + Date.now(),
+        id: "generated-" + Date.now(),
         group_id: groupId,
         average_degree: result.averageDegree,
         best_pair: {
           user_ids: result.bestPair.userIds,
           names: result.bestPair.names,
-          degree: result.bestPair.degree
+          degree: result.bestPair.degree,
         },
         worst_pair: {
           user_ids: result.worstPair.userIds,
           names: result.worstPair.names,
-          degree: result.worstPair.degree
+          degree: result.worstPair.degree,
         },
         analysis: result.analysis,
-        created_at: new Date().toISOString()
+        created_at: new Date().toISOString(),
       };
 
       return formattedResult;
