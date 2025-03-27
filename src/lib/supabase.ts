@@ -1,10 +1,30 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+// シングルトンインスタンスを保持するための変数
+let supabaseInstance: SupabaseClient | null = null;
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables');
-}
+/**
+ * Supabaseクライアントのシングルトンインスタンスを取得する
+ * @returns 初期化済みのSupabaseクライアントインスタンス
+ */
+const getSupabaseClient = () => {
+  // すでにインスタンスが存在する場合はそれを返す
+  if (supabaseInstance) {
+    return supabaseInstance;
+  }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+  const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    throw new Error('Missing Supabase environment variables');
+  }
+
+  // 新しいインスタンスを作成
+  supabaseInstance = createClient(supabaseUrl, supabaseAnonKey);
+  console.log('Supabase client initialized');
+  return supabaseInstance;
+};
+
+// エクスポートする supabase クライアントはシングルトンインスタンスを取得する関数を使用
+export const supabase = getSupabaseClient();
