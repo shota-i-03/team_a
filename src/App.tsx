@@ -22,7 +22,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Navigate to="/register" replace />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/auth/callback" element={<AuthCallback />} />
+          <Route path="/auth-callback" element={<AuthCallback />} />
           <Route path="/home" element={<Home />} />
           <Route path="/groups" element={<GroupRegistration />} />
           <Route path="/profile-setup" element={<ProfileSetup />} />

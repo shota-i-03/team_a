@@ -17,7 +17,7 @@ export const authService = {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/home`,
+        redirectTo: `${window.location.origin}/auth-callback`, // /home から /auth-callback に変更
       },
     });
 
