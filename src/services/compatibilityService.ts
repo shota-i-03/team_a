@@ -1,5 +1,4 @@
 import { supabase } from "../lib/supabase";
-import { doesTableExist } from "../lib/supabaseUtils";
 import {
   Profile,
   SurveyResponse,
@@ -397,12 +396,7 @@ ${JSON.stringify(membersData, null, 2)}
       throw new Error("グループIDが指定されていません");
     }
 
-    // テーブルが存在するか確認
-    const tableExists = await doesTableExist("group_compatibility_results");
-    if (!tableExists) {
-      console.log("テーブル 'group_compatibility_results' は存在しません。保存をスキップします。");
-      return;
-    }
+
 
     const { error } = await supabase.from("group_compatibility_results").upsert(
       {
@@ -478,13 +472,6 @@ ${JSON.stringify(membersData, null, 2)}
       }
 
       console.log("グループ相性診断結果を取得中:", groupId);
-
-      // テーブルが存在するか確認
-      const tableExists = await doesTableExist("group_compatibility_results");
-      if (!tableExists) {
-        console.log("テーブル 'group_compatibility_results' は存在しません。Geminiでの生成に切り替えます。");
-        return null;
-      }
 
       const { data, error } = await supabase
         .from("group_compatibility_results")
