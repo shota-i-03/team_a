@@ -46,80 +46,22 @@ export const compatibilityService = {
     };
 
     // 質問タイプに基づいた回答の意味を説明するマッピング
-    const getAnswerMeaning = (questionId: string, value: number): string => {
-      // q1-q15: 標準的な5段階評価
-      if (questionId >= "q1" && questionId <= "q15") {
-        switch (value) {
-          case 1:
-            return "全く当てはまらない";
-          case 2:
-            return "あまり当てはまらない";
-          case 3:
-            return "どちらとも言えない";
-          case 4:
-            return "やや当てはまる";
-          case 5:
-            return "かなり当てはまる";
-          default:
-            return "不明な回答";
-        }
+    const getAnswerMeaning = (value: number): string => {
+      // すべての質問タイプに対して統一した表現を使用
+      switch (value) {
+        case 1:
+          return "全く当てはまらない";
+        case 2:
+          return "あまり当てはまらない";
+        case 3:
+          return "どちらとも言えない";
+        case 4:
+          return "やや当てはまる";
+        case 5:
+          return "かなり当てはまる";
+        default:
+          return "不明な回答";
       }
-
-      // q16: 聞き手と話し手の役割
-      else if (questionId === "q16") {
-        switch (value) {
-          case 1:
-            return "常に聞き手を好む";
-          case 2:
-            return "どちらかといえば聞き手を好む";
-          case 3:
-            return "状況によって使い分ける";
-          case 4:
-            return "どちらかといえば話し手を好む";
-          case 5:
-            return "常に話し手を好む";
-          default:
-            return "不明な回答";
-        }
-      }
-
-      // q17: 対立への対処法
-      else if (questionId === "q17") {
-        switch (value) {
-          case 1:
-            return "対立を避ける";
-          case 2:
-            return "相手に合わせる";
-          case 3:
-            return "妥協点を探る";
-          case 4:
-            return "話し合いで解決を目指す";
-          case 5:
-            return "自分の意見を主張する";
-          default:
-            return "不明な回答";
-        }
-      }
-
-      // q18-q19: 適応性と競争心に関する質問
-      else if (questionId === "q18" || questionId === "q19") {
-        switch (value) {
-          case 1:
-            return "全く当てはまらない";
-          case 2:
-            return "あまり当てはまらない";
-          case 3:
-            return "どちらとも言えない";
-          case 4:
-            return "やや当てはまる";
-          case 5:
-            return "かなり当てはまる";
-          default:
-            return "不明な回答";
-        }
-      }
-
-      return "不明な回答";
     };
 
     // 質問と回答の詳細を含むオブジェクトを作成
@@ -144,7 +86,7 @@ export const compatibilityService = {
               question:
                 questionMap[qId as keyof typeof questionMap] || "不明な質問",
               answer: value,
-              meaning: getAnswerMeaning(qId, value),
+              meaning: getAnswerMeaning(value),
             };
           }
         );
@@ -159,61 +101,65 @@ export const compatibilityService = {
       };
     };
 
-    // 両者のデータを強化
     const enrichedPersonA = enrichPersonData(personA);
     const enrichedPersonB = enrichPersonData(personB);
 
     const prompt = `You are an expert in diagnosing interpersonal compatibility.
-
-Based on the provided JSON data for ${personA.profile.name} and ${
+    
+    Your personality is warm, insightful, and witty—like a friendly relationship counselor with a sense of humor.
+    
+    Based on the provided JSON data for ${personA.profile.name} and ${
       personB.profile.name
     }, evaluate their compatibility according to the following criteria:
-- Alignment of communication styles.
-- Commonalities in values, interests, and hobbies.
-- Approaches to emotional expression and conflict resolution.
-- Compatibility in interpersonal roles.
-- Similarity in stress tolerance and handling pressure.
-
-# Input
-## ${personA.profile.name}
-${JSON.stringify(enrichedPersonA, null, 2)}
-
-## ${personB.profile.name}
-${JSON.stringify(enrichedPersonB, null, 2)}
-
-# Evaluation Guidelines
-- Assess compatibility based on the following weightings:
-  - Communication styles: 25%
-  - Values, interests, and hobbies: 25%
-  - Emotional expression and conflict resolution: 20%
-  - Interpersonal roles: 15%
-  - Stress tolerance: 15%
-- For each criterion, evaluate similarity or complementarity using the provided data.
-- Use survey responses to infer traits where direct indicators are unavailable.
-
-# Output
-Return a JSON object with the following structure (do not include markdown formatting or code blocks).
-All text content (description and advice) must be in Japanese:
-
-{
-  "degree": number, // An integer compatibility score from 0 to 100.
-  "description": {
-    "diagnosis_reasons": string,  // Reasons for the compatibility score.
-    "strengths": string,  // Positive aspects of the relationship.
-    "weaknesses": string,  // Areas for improvement.
-    "negative_perspectives": string,  // Potential conflicts or mismatches.
-    "positive_perspectives": string  // Opportunities for growth and harmony.
-  },  
-    "advice": {
-      "action_plan" : string, // Practical advice and an actionable plan for improving the relationship.
-      "steps": string[]  // Include specific steps (e.g., "Discuss differing values during a weekly meeting").
+    - Alignment of communication styles.
+    - Commonalities in values, interests, and hobbies.
+    - Approaches to emotional expression and conflict resolution.
+    - Compatibility in interpersonal roles.
+    - Similarity in stress tolerance and handling pressure.
+    
+    # Input
+    ## ${personA.profile.name}
+    ${JSON.stringify(enrichedPersonA, null, 2)}
+    
+    ## ${personB.profile.name}
+    ${JSON.stringify(enrichedPersonB, null, 2)}
+    
+    # Evaluation Guidelines
+    - Assess compatibility based on the following weightings:
+      - Communication styles: 25%
+      - Values, interests, and hobbies: 25%
+      - Emotional expression and conflict resolution: 20%
+      - Interpersonal roles: 15%
+      - Stress tolerance: 15%
+    - For each criterion, evaluate similarity or complementarity using the provided data.
+    - Use survey responses to infer traits where direct indicators are unavailable.
+    
+    # Output
+    Return a JSON object with the following structure (do not include markdown formatting or code blocks).
+    All text content (description and advice) must be in Japanese:
+    
+    {
+      "degree": number, // An integer compatibility score from 0 to 100.
+      "catchphrase": string, // A short, catchy Japanese phrase summarizing the relationship (e.g., "火と水。でもお互いを蒸発させない距離感なら最強。")
+      "description": {
+        "diagnosis_reasons": string,
+        "strengths": string,
+        "weaknesses": string,
+        "negative_perspectives": string,
+        "positive_perspectives": string
+      },  
+      "advice": {
+        "action_plan" : string,
+        "steps": string[]
+      }
     }
-  }
-}
-  Ensure that:
-- The "description" is formatted in markdown, covering all specified sections in a clear and balanced manner.
-- The output is entirely in Japanese.
-- The JSON is valid and adheres to the specified structure.`;
+    
+    Ensure that:
+    - The "description" is emotionally expressive and includes clever analogies or metaphors when helpful.
+    - Use a warm, slightly playful tone like a skilled human compatibility advisor.
+    - Add a fun or witty catchphrase that captures the essence of their relationship.
+    - The output is entirely in Japanese and the JSON is valid.
+    `;
 
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
     const result = await model.generateContent(prompt);
