@@ -1,6 +1,5 @@
 import React from "react";
 import { useAuth } from "../hooks/useAuth";
-import { Users } from "lucide-react";
 
 export function Register() {
   const { signInWithGoogle } = useAuth();
@@ -20,6 +19,65 @@ export function Register() {
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+        {/* 機能紹介セクション */}
+        <div className="mb-8">
+          <div className="bg-white shadow sm:rounded-lg p-6">
+            <div className="space-y-4">
+              <div className="flex items-start">
+                <div className="flex-shrink-0">
+                  <svg
+                    className="h-6 w-6 text-indigo-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M13 10V3L4 14h7v7l9-11h-7z"
+                    />
+                  </svg>
+                </div>
+                <div className="ml-3">
+                  <h4 className="text-base font-medium text-gray-900">
+                    グループ全員との相性診断を同時生成
+                  </h4>
+                  <p className="mt-1 text-sm text-gray-500">
+                    グループに参加すると、自動的にメンバー全員との相性診断が生成されます。
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start">
+                <div className="flex-shrink-0">
+                  <svg
+                    className="h-6 w-6 text-indigo-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                    />
+                  </svg>
+                </div>
+                <div className="ml-3">
+                  <h4 className="text-base font-medium text-gray-900">
+                    グループとしての相性診断
+                  </h4>
+                  <p className="mt-1 text-sm text-gray-500">
+                    個々の相性だけでなく、グループ全体としての相性も一目で把握できます。グループ全体の相性を分析し、グループの特徴や課題をAIが提示します。より良い人間関係づくりのためのアドバイスも提供されます。
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
           <div className="space-y-4">
             <button
