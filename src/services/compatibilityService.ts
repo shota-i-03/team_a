@@ -291,7 +291,21 @@ All text content (description and advice) must be in Japanese:
 
     if (memberError) throw memberError;
     if (!members || members.length < 2) {
-      throw new Error("グループにはメンバーが2人以上必要です");
+      return {
+        averageDegree: 0,
+        bestPair: { userIds: ["", ""], names: ["", ""], degree: 0 },
+        worstPair: { userIds: ["", ""], names: ["", ""], degree: 0 },
+        analysis: {
+          overall_assessment: "グループにはメンバーが2人以上必要です",
+          group_strengths: "",
+          group_challenges: "",
+          relationship_dynamics: "",
+          growth_opportunities: "",
+          action_plan: "",
+          recommendations: [],
+        },
+      };
+      //throw new Error("グループにはメンバーが2人以上必要です");
     }
 
     // グループ情報を取得
@@ -400,7 +414,6 @@ ${JSON.stringify(membersData, null, 2)}
 
     const { error } = await supabase.from("group_compatibility_results").upsert(
       {
-        id: uuidv4(),
         group_id: groupId,
         average_degree: result.averageDegree,
         best_pair: {
