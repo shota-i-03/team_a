@@ -121,10 +121,6 @@ export const useCompatibility = () => {
         (r.user_a_id === memberId && r.user_b_id === user.id)
     );
 
-    if (!result) {
-      throw new Error("相性診断結果が見つかりません");
-    }
-
     return {
       degree: result.degree,
       description: result.description,
@@ -153,7 +149,8 @@ export const useCompatibility = () => {
         setGroupDiagnosisLoading(true);
 
         // 新しく追加した関数を使用して、結果が見つからない場合は自動的に生成
-        const result = await compatibilityService.ensureGroupCompatibilityResult(groupId);
+        const result =
+          await compatibilityService.ensureGroupCompatibilityResult(groupId);
 
         if (result) {
           setGroupCompatibilityResult(result);
@@ -173,7 +170,11 @@ export const useCompatibility = () => {
       }
     } catch (error: any) {
       console.error("グループ相性診断結果の処理に失敗:", error);
-      setError(`グループ相性診断結果の処理に失敗しました: ${error.message || '不明なエラー'}`);
+      setError(
+        `グループ相性診断結果の処理に失敗しました: ${
+          error.message || "不明なエラー"
+        }`
+      );
     }
   };
 
@@ -185,12 +186,15 @@ export const useCompatibility = () => {
       setIsBackgroundUpdating(true);
 
       // 新しい結果を生成（Supabaseまたは必要に応じてGemini）
-      const newResult = await compatibilityService.generateAndSaveGroupCompatibility(groupId);
+      const newResult =
+        await compatibilityService.generateAndSaveGroupCompatibility(groupId);
 
       // 新しい結果をキャッシュと状態に設定
       const cacheKey = generateCacheKey(CACHE_PREFIX, groupId);
       cache.set(cacheKey, newResult, CACHE_EXPIRY);
-      setGroupCompatibilityResult(newResult as unknown as GroupCompatibilityResult);
+      setGroupCompatibilityResult(
+        newResult as unknown as GroupCompatibilityResult
+      );
       setLastUpdateTime(new Date());
 
       console.log("バックグラウンド更新が完了しました");
@@ -209,25 +213,26 @@ export const useCompatibility = () => {
       }
 
       // Geminiから直接結果を生成
-      const result = await compatibilityService.generateGroupCompatibilityAnalysis(groupId!);
+      const result =
+        await compatibilityService.generateGroupCompatibilityAnalysis(groupId!);
 
       // UIに表示するために正しい形式に変換
       const formattedResult = {
-        id: 'temporary-' + Date.now(),
+        id: "temporary-" + Date.now(),
         group_id: groupId!,
         average_degree: result.averageDegree,
         best_pair: {
           user_ids: result.bestPair.userIds,
           names: result.bestPair.names,
-          degree: result.bestPair.degree
+          degree: result.bestPair.degree,
         },
         worst_pair: {
           user_ids: result.worstPair.userIds,
           names: result.worstPair.names,
-          degree: result.worstPair.degree
+          degree: result.worstPair.degree,
         },
         analysis: result.analysis,
-        created_at: new Date().toISOString()
+        created_at: new Date().toISOString(),
       };
 
       setGroupCompatibilityResult(formattedResult);
@@ -236,7 +241,6 @@ export const useCompatibility = () => {
       const cacheKey = generateCacheKey(CACHE_PREFIX, groupId!);
       cache.set(cacheKey, formattedResult, CACHE_EXPIRY);
       setLastUpdateTime(new Date());
-
     } catch (error) {
       console.error("Geminiからのグループ相性診断生成に失敗:", error);
       setError("グループ全体の相性診断に失敗しました");
@@ -258,21 +262,28 @@ export const useCompatibility = () => {
 
       try {
         // まずSupabaseへの保存を試みる
-        const result = await compatibilityService.generateAndSaveGroupCompatibility(groupId);
+        const result =
+          await compatibilityService.generateAndSaveGroupCompatibility(groupId);
 
         // 結果を状態とキャッシュに設定
-        setGroupCompatibilityResult(result as unknown as GroupCompatibilityResult);
+        setGroupCompatibilityResult(
+          result as unknown as GroupCompatibilityResult
+        );
         const cacheKey = generateCacheKey(CACHE_PREFIX, groupId);
         cache.set(cacheKey, result, CACHE_EXPIRY);
         setLastUpdateTime(new Date());
-
       } catch (dbError: any) {
         // データベースエラーの場合（テーブルが存在しない場合など）
         console.error("Supabaseへの保存に失敗:", dbError);
 
         // テーブルが存在しない場合はGeminiのみを使用
-        if (dbError.code === "42P01" || dbError.message?.includes("does not exist")) {
-          console.log("データベーステーブルが存在しないため、Geminiから直接生成します");
+        if (
+          dbError.code === "42P01" ||
+          dbError.message?.includes("does not exist")
+        ) {
+          console.log(
+            "データベーステーブルが存在しないため、Geminiから直接生成します"
+          );
           await generateWithGeminiOnly(false); // ローディング表示は既に行われているので不要
         } else {
           // その他のエラーの場合も、Geminiのみで生成を試みる
@@ -282,7 +293,11 @@ export const useCompatibility = () => {
       }
     } catch (error: any) {
       console.error("グループ相性診断の生成に失敗:", error);
-      setError(`グループ全体の相性診断に失敗しました: ${error.message || '不明なエラー'}`);
+      setError(
+        `グループ全体の相性診断に失敗しました: ${
+          error.message || "不明なエラー"
+        }`
+      );
     } finally {
       if (showLoading) {
         setGroupDiagnosisLoading(false);
@@ -300,6 +315,6 @@ export const useCompatibility = () => {
     groupDiagnosisLoading,
     generateGroupCompatibility,
     isBackgroundUpdating,
-    lastUpdateTime
+    lastUpdateTime,
   };
 };
